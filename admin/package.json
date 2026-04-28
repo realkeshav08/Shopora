@@ -1,5 +1,5 @@
 {
-  "name": "frontend",
+  "name": "admin",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -14,8 +14,7 @@
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-router-dom": "^7.14.2",
-    "react-toastify": "^11.1.0",
-    "toastify": "^2.0.1"
+    "react-toastify": "^11.1.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

@@ -37,29 +37,19 @@ Shopora is a full-stack e-commerce application built with the MERN stack (MongoD
    git clone https://github.com/realkeshav08/Shopora.git
    ```
 
-2. **Backend Setup**:
+2. **Setup all dependencies**:
    ```bash
-   cd backend
    npm install
-   # Create a .env file with MONGODB_URI, JWT_SECRET, etc.
-   npm run server
    ```
 
-3. **Frontend Setup**:
-   ```bash
-   cd frontend
-   npm install
-   # Create a .env file with VITE_BACKEND_URL
-   npm run dev
-   ```
+3. **Configure Environment Variables**:
+   Create `.env` files in `backend/`, `frontend/`, and `admin/` using the provided samples.
 
-4. **Admin Setup**:
+4. **Run the entire project**:
    ```bash
-   cd admin
-   npm install
-   # Create a .env file with VITE_BACKEND_URL
    npm run dev
    ```
+   This will start the Backend, Frontend, and Admin Panel concurrently.
 
 ## 📝 License
 

@@ -1,9 +1,9 @@
 import jwt from 'jsonwebtoken'
 
-const authUser = async (req, resizeBy, next) => {
+const authUser = async (req, res, next) => {
     const { token } = req.headers;
     if (!token) {
-        return resizeBy.json({ success: false, message: 'Not Authorized Login Again'})
+        return res.json({ success: false, message: 'Not Authorized Login Again'})
     }
     try{
         const token_decoded = jwt.verify(token, process.env.JWT_SECRET);

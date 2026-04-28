@@ -27,7 +27,7 @@ const Footer = () => {
         </div>
         <div>
             <hr />
-            <p className='py-5 text-sm text-center'>Copyright 2024@ forever  .com - All rights reserved.</p>
+            <p className='py-5 text-sm text-center'>Copyright 2024@ Shopora.com - All rights reserved.</p>
         </div>
       </div>
     </div>

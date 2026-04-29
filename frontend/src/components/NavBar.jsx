@@ -47,15 +47,15 @@ const NavBar = () => {
 
       {/* Profile and Cart */}
       <div className="flex items-center gap-6">
-        <img onClick={() => setShowSearch(true)} src={assets.search_icon} className="w-5 cursor-pointer" alt="Search" />
+        <img onClick={() => { setShowSearch(true); navigate('/collection'); }} src={assets.search_icon} className="w-5 cursor-pointer" alt="Search" />
 
         <div className="group relative">
           <img onClick={() => token ? null : navigate('/login')} className="w-5 cursor-pointer" src={assets.profile_icon} alt="Profile" />
-          {token && <div className="hidden group-hover:block absolute right-0 pt-4 bg-white shadow-md rounded">
-            <div className="flex flex-col gap-2 w-36 py-3 px-5 bg-light text-gray-500 rounded">
-              <p className="cursor-pointer hover:text-black">My Profile</p>
-              <p onClick={()=> navigate('/orders')} className="cursor-pointer hover:text-black">Orders</p>
-              <p onClick={logout} className="cursor-pointer hover:text-black">Logout</p>
+          {token && <div className="hidden group-hover:block absolute right-0 pt-4 bg-transparent">
+            <div className="flex flex-col gap-2 w-36 py-3 px-5 bg-white shadow-xl rounded-2xl text-gray-500 border border-primary/5">
+              <p onClick={() => window.open('/profile', '_blank')} className="cursor-pointer hover:text-primary transition-colors">My Profile</p>
+              <p onClick={()=> navigate('/orders')} className="cursor-pointer hover:text-primary transition-colors">Orders</p>
+              <p onClick={logout} className="cursor-pointer hover:text-primary transition-colors">Logout</p>
             </div>
           </div>}
         </div>

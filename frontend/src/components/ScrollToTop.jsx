@@ -5,10 +5,15 @@ const ScrollToTop = () => {
   const { pathname } = useLocation();
 
   useEffect(() => {
+    // Disable browser's automatic scroll restoration
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+    
     window.scrollTo({
         top: 0,
         left: 0,
-        behavior: 'instant' // Immediately jump to top
+        behavior: 'instant'
     });
   }, [pathname]);
 

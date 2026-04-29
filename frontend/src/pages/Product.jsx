@@ -6,7 +6,7 @@ import RelatedProducts from '../components/RelatedProducts';
 
 const Product = () => {
   const { productId } = useParams();
-  const { products, currency, addToCart } = useContext(ShopContext);
+  const { products, currency, addToCart, cartItems, updateQuantity, navigate } = useContext(ShopContext);
   const [productData, setProductData] = useState(null);
   const [image, setImage] = useState('');
   const [size, setSize] = useState('');
@@ -81,9 +81,43 @@ const Product = () => {
               ))}
             </div>
           </div>
-          <button onClick={()=> addToCart(productData._id, size)} className="bg-primary text-white px-8 py-3 text-sm active:bg-secondary">
-            ADD TO CART
-          </button>
+          <div className="flex items-center gap-5 mt-4">
+            {size && cartItems && cartItems[productId] && cartItems[productId][size] > 0 ? (
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
+                <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden bg-white shadow-sm">
+                  <button 
+                    onClick={() => updateQuantity(productId, size, cartItems[productId][size] - 1)}
+                    className="px-5 py-3 hover:bg-gray-50 active:bg-gray-100 transition-all duration-200 border-r border-gray-300 font-bold"
+                  >
+                    -
+                  </button>
+                  <span className="px-8 py-3 font-semibold text-gray-900 min-w-[60px] text-center bg-gray-50/30">
+                    {cartItems[productId][size]}
+                  </span>
+                  <button 
+                    onClick={() => updateQuantity(productId, size, cartItems[productId][size] + 1)}
+                    className="px-5 py-3 hover:bg-gray-50 active:bg-gray-100 transition-all duration-200 border-l border-gray-300 font-bold"
+                  >
+                    +
+                  </button>
+                </div>
+                <button 
+                  onClick={() => navigate('/cart')}
+                  className="bg-primary text-white px-10 py-4 text-xs font-bold uppercase tracking-widest hover:brightness-110 active:scale-[0.98] transition-all duration-300 shadow-lg shadow-primary/20 rounded-lg"
+                >
+                  Proceed to Checkout
+                </button>
+              </div>
+            ) : (
+              <button 
+                onClick={() => addToCart(productData._id, size)} 
+                className="bg-primary text-white px-12 py-4 text-xs font-bold uppercase tracking-widest hover:brightness-110 active:scale-[0.98] transition-all duration-300 shadow-lg shadow-primary/20 rounded-lg"
+              >
+                ADD TO CART
+              </button>
+            )}
+          </div>
+
           <hr className="mt-8 sm:w-4/5" />
           <div className="text-sm text-gray-500 mt-5 flex flex-col gap-1">
             <p>100% Original product.</p>

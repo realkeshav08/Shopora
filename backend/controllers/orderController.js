@@ -3,7 +3,8 @@ import userModel from "../models/userModel.js"
 
 const placeOrder = async (req, res) => {
     try {
-        const { userId, items, amount, address} = req.body
+        const { userId } = req;
+        const { items, amount, address} = req.body
         const orderData = {
             userId,
             items,
@@ -51,7 +52,7 @@ const allOrders = async (req, res) => {
 // User order data for frontend
 const userOrders = async (req, res) => {
     try{
-        const {userId} = req.body
+        const { userId } = req;
         const orders = await orderModel.find({userId})
         res.json({success: true, orders})
     }

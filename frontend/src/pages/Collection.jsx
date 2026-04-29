@@ -40,7 +40,7 @@ const Collection = () => {
       productsCopy = productsCopy.filter(item => category.includes(item.category))
     }
     if(subcategory.length > 0){
-      productsCopy = productsCopy.filter(item => subcategory.includes(item.subcategory))
+      productsCopy = productsCopy.filter(item => subcategory.includes(item.subCategory))
     }
     setFilterProducts(productsCopy)
   }
@@ -116,7 +116,7 @@ const Collection = () => {
         {/*Map Products */}
         <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 gap-y-6'>
           {filterProducts.map((item, index)=>(
-            <ProductItem key={index} name={item.name} id={item._id} price={item.price} image={item.images} />
+            <ProductItem key={index} name={item.name} id={item._id} price={item.price} image={item.image} />
           ))}
         </div>
       </div>

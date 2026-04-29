@@ -55,8 +55,10 @@ import p_img51 from './p_img51.png'
 import p_img52 from './p_img52.png'
 
 
-const logo = 'https://keshavkashyap.sirv.com/Shopora/Shopora_logo.png'
-import hero_img from './hero_img.png'
+const logo = 'https://keshavkashyap.sirv.com/Shopora/Shopora_logo_pink.png'
+import hero_img from './hero_new.png'
+import featured_1 from './featured_1.png'
+import featured_2 from './featured_2.png'
 import cart_icon from './cart_icon.png'
 import bin_icon from './bin_icon.png'
 import dropdown_icon from './dropdown_icon.png'
@@ -77,6 +79,8 @@ import cross_icon from './cross_icon.png'
 export const assets = {
     logo,
     hero_img,
+    featured_1,
+    featured_2,
     cart_icon,
     dropdown_icon,
     exchange_icon,
@@ -101,7 +105,7 @@ export const products = [
         name: "Women Round Neck Cotton Top",
         description: "A lightweight, usually knitted, pullover shirt, close-fitting and with a round neckline and short sleeves, worn as an undershirt or outer garment.",
         price: 100,
-        image: [p_img1],
+        image: [featured_1, p_img1],
         category: "Women",
         subCategory: "Topwear",
         sizes: ["S", "M", "L"],
@@ -113,7 +117,7 @@ export const products = [
         name: "Men Round Neck Pure Cotton T-shirt",
         description: "A lightweight, usually knitted, pullover shirt, close-fitting and with a round neckline and short sleeves, worn as an undershirt or outer garment.",
         price: 200,
-        image: [p_img2_1,p_img2_2,p_img2_3,p_img2_4],
+        image: [featured_2, p_img2_1,p_img2_2,p_img2_3,p_img2_4],
         category: "Men",
         subCategory: "Topwear",
         sizes: ["M", "L", "XL"],
@@ -125,7 +129,7 @@ export const products = [
         name: "Girls Round Neck Cotton Top",
         description: "A lightweight, usually knitted, pullover shirt, close-fitting and with a round neckline and short sleeves, worn as an undershirt or outer garment.",
         price: 220,
-        image: [p_img3],
+        image: [p_img3, p_img4, p_img5],
         category: "Kids",
         subCategory: "Topwear",
         sizes: ["S", "L", "XL"],

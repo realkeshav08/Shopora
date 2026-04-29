@@ -15,7 +15,7 @@ const Product = () => {
     const product = products.find((item) => item._id === productId);
     if (product) {
       setProductData(product);
-      setImage(product.images[0]); // Assuming `image` is an array of URLs
+      setImage(product.image[0]); // Assuming `image` is an array of URLs
     }
   };
 
@@ -31,13 +31,13 @@ const Product = () => {
         <div className="flex-1 flex flex-col sm:flex-row gap-3">
           {/* Thumbnails */}
           <div className="flex sm:flex-col overflow-x-auto sm:overflow-y-auto sm:w-[20%] w-full gap-2">
-            {productData.images.map((item, index) => (
+            {productData.image.map((item, index) => (
               <img
                 onClick={() => setImage(item)}
                 src={item}
                 key={index}
                 className={`w-24 h-24 object-cover cursor-pointer border ${
-                  image === item ? 'border-orange-500' : 'border-gray-200'
+                  image === item ? 'border-primary' : 'border-gray-200'
                 }`}
                 alt={`Thumbnail ${index + 1}`}
               />
@@ -72,8 +72,8 @@ const Product = () => {
                 <button
                   onClick={() => setSize(item)}
                   key={index}
-                  className={`bg-gray-100 py-2 px-4 border ${
-                    item === size ? 'border-orange-500' : ''
+                  className={`bg-light py-2 px-4 border ${
+                    item === size ? 'border-primary' : ''
                   }`}
                 >
                   {item}
@@ -81,7 +81,7 @@ const Product = () => {
               ))}
             </div>
           </div>
-          <button onClick={()=> addToCart(productData._id, size)} className="bg-black text-white px-8 py-3 text-sm active:bg-gray-700">
+          <button onClick={()=> addToCart(productData._id, size)} className="bg-primary text-white px-8 py-3 text-sm active:bg-secondary">
             ADD TO CART
           </button>
           <hr className="mt-8 sm:w-4/5" />

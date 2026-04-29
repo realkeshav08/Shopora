@@ -24,5 +24,8 @@
     "razorpay": "^2.9.6",
     "stripe": "^22.1.0",
     "validator": "^13.15.35"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^10.4.0"
   }
 }

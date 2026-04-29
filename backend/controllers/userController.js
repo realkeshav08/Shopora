@@ -67,13 +67,24 @@ const registerUser = async (req, res) => {
 const adminLogin = async (req, res) => {
     try {
         const { email, password } = req.body;
+        
+        // 1. Check Master Admin from .env
         if(email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD){
             const token = jwt.sign(email + password, process.env.JWT_SECRET);
-            res.json({ success: true, token });
+            return res.json({ success: true, token });
         }
-        else {
-            res.json({ success: false, message: "Invalid email or password" });
+
+        // 2. Check Database for Admin Users
+        const user = await userModel.findOne({ email });
+        if (user && user.role === 'admin') {
+            const isMatch = await bcrypt.compare(password, user.password);
+            if (isMatch) {
+                const token = jwt.sign(user._id.toString(), process.env.JWT_SECRET);
+                return res.json({ success: true, token });
+            }
         }
+
+        res.json({ success: false, message: "Invalid email or password" });
     }
     catch (error) {
         console.log(error);

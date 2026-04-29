@@ -2,11 +2,12 @@ import React from 'react';
 
 const Title = ({ text1, text2 }) => { // Destructure the props here
   return (
-    <div className="inline-flex gap-2 items-center mb-3">
-      <p className="text-gray-500">
-        {text1} <span className="text-gray-700 font-medium">{text2}</span>
-      </p>
-      <p className="w-8 sm:w-12 h-[1px] sm:h-[2px] bg-gray-700"></p>
+    <div className="flex flex-col items-center mb-10">
+      <div className="inline-flex items-center gap-3">
+        <p className="text-gray-400 text-sm tracking-[0.2em] uppercase font-light">{text1}</p>
+        <span className="w-12 h-[1px] bg-primary/30"></span>
+      </div>
+      <h2 className="prata-regular text-4xl mt-2 text-gray-800">{text2}</h2>
     </div>
   );
 };

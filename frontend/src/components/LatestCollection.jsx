@@ -12,17 +12,17 @@ const LatestCollection = () => {
   }, [products]); // Ensure that you re-fetch products if they change
 
   return (
-    <div className='my-10'>
-      <div className='text-center py-8 text-3xl'>
-        <Title text1={'LATEST'} text2={'COLLECTIONS'} />
-        <p className='w-3/4 m-auto text-xs sm:text-sm md:text-base text-gray-600'>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Dicta ad pariatur dolores ea voluptas placeat nulla eum repudiandae deserunt libero.
+    <div id='latest-collection' className='my-20'>
+      <div className='py-12'>
+        <Title text1={'CURATED'} text2={'Latest Collections'} />
+        <p className='w-full max-w-2xl m-auto text-sm md:text-base text-gray-500 text-center leading-relaxed'>
+          Explore our newest arrivals, carefully selected to bring you the perfect blend of contemporary style and timeless elegance.
         </p>
       </div>
       {/* Rendering products */}
-      <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 gap-y-6'>
+      <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 sm:gap-8 gap-y-10'>
         {latestProducts.map((item, index) => (
-          <ProductItem key={index} id={item._id} image={item.images} name={item.name} price={item.price} />
+          <ProductItem key={index} id={item._id} image={item.image} name={item.name} price={item.price} />
         ))}
       </div>
     </div>

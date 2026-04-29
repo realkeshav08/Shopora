@@ -2,6 +2,7 @@ import { createContext, useEffect, useState } from "react";
 import axios from 'axios';
 import { toast } from "react-toastify";
 import { useNavigate } from 'react-router-dom';
+import { products as assetsProducts } from "../assets/assets";
 
 
 
@@ -15,7 +16,7 @@ const ShopContextProvider = (props) => {
     const [search, setSearch] = useState('');
     const [showSearch, setShowSearch] = useState(false);
     const [cartItems, setCartItems] = useState([]);
-    const [products, setProducts] = useState([])
+    const [products, setProducts] = useState(assetsProducts)
     const [token, setToken] = useState('')
     const navigate = useNavigate();
 
@@ -105,10 +106,12 @@ const ShopContextProvider = (props) => {
         try {
             const response = await axios.get(backendUrl + '/api/product/list')
             if(response.data.success){
-                setProducts(response.data.products);
-            }
-            else{
-                toast.error(response.data.message)
+                // Only update if the backend actually has products to show
+                if (response.data.products && response.data.products.length > 0) {
+                    setProducts(response.data.products);
+                } else {
+                    console.log("Backend returned no products, sticking with assets.");
+                }
             }
         }
         catch (error){

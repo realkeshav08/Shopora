@@ -92,7 +92,7 @@ const ShopContextProvider = (props) => {
             let itemInfo = products.find((product)=> product._id === items);
             for(const item in cartItems[items]){
                 try{
-                    if(cartItems[items][item] > 0){
+                    if(itemInfo && cartItems[items][item] > 0){
                         totalAmount += itemInfo.price * cartItems[items][item];
                     }
                 }
@@ -110,7 +110,11 @@ const ShopContextProvider = (props) => {
             if(response.data.success){
                 // Only update if the backend actually has products to show
                 if (response.data.products && response.data.products.length > 0) {
-                    setProducts(response.data.products);
+                    const mappedProducts = response.data.products.map(p => ({
+                        ...p,
+                        image: p.image || p.images // Map 'images' (backend) to 'image' (frontend fallback)
+                    }));
+                    setProducts(mappedProducts);
                 } else {
                     console.log("Backend returned no products, sticking with assets.");
                 }

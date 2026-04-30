@@ -82,7 +82,11 @@ const Product = () => {
             </div>
           </div>
           <div className="flex items-center gap-5 mt-4">
-            {size && cartItems && cartItems[productId] && cartItems[productId][size] > 0 ? (
+            {productData.available === false ? (
+              <button className="bg-gray-400 text-white px-12 py-4 text-xs font-bold uppercase tracking-widest cursor-not-allowed rounded-lg shadow-inner">
+                Currently Not Available
+              </button>
+            ) : size && cartItems && cartItems[productId] && cartItems[productId][size] > 0 ? (
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
                 <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden bg-white shadow-sm">
                   <button 

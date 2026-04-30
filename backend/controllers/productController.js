@@ -43,6 +43,7 @@ const addProduct = async (req, res) => {
             subCategory,
             sizes: JSON.parse(sizes),
             bestseller: bestseller === "true" ? true:false,
+            available: true,
             images: imagesUrl,
             date: Date.now(),
         };
@@ -96,4 +97,17 @@ const singleProduct = async (req, res) => {
     }
 }
 
-export { listProducts, addProduct, removeProduct, singleProduct }
+// function for update status
+const updateStatus = async (req, res) => {
+    try {
+        const { id, available } = req.body;
+        await productModel.findByIdAndUpdate(id, { available });
+        res.json({ success: true, message: "Status Updated" });
+    }
+    catch (error) {
+        console.log(error);
+        res.json({ success: false, message: error.message });
+    }
+}
+
+export { listProducts, addProduct, removeProduct, singleProduct, updateStatus }

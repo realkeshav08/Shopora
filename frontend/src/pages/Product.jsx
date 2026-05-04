@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { ShopContext } from '../context/ShopContext';
 import { assets } from '../assets/assets';
 import RelatedProducts from '../components/RelatedProducts';
+import FrequentlyBoughtTogether from '../components/FrequentlyBoughtTogether';
 
 const Product = () => {
   const { productId } = useParams();
@@ -156,10 +157,14 @@ const Product = () => {
         </div>
       </div>
 
-      {/* Related Products Section */}
+      {/* Frequently Bought Together */}
+      <FrequentlyBoughtTogether productId={productId} />
+
+      {/* Similar Products */}
       <RelatedProducts
         category={productData.category}
         subCategory={productData.subCategory}
+        productId={productId}
       />
     </div>
   ) : (

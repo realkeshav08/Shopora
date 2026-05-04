@@ -5,10 +5,42 @@ Shopora is a full-stack e-commerce application built with the MERN stack (MongoD
 ## 🚀 Features
 
 - **Customer Storefront**: Browse products, filter by categories, and manage a shopping cart.
-- **Admin Dashboard**: Manage inventory, track orders, and update product details.
+- **Admin Dashboard**: Manage inventory, track orders, view recommendation analytics, and update product details.
+- **Smart Recommendation Engine**: Personalized "For You" picks, trending products, similar items, and "frequently bought together" suggestions powered by content-based and collaborative filtering.
 - **Secure Authentication**: JWT-based auth for users and admins.
 - **Payment Integration**: Supports Stripe and Razorpay.
 - **Cloud Media**: Product images hosted on Cloudinary.
+
+## 🎯 Recommendation System
+
+Shopora ships with a built-in recommendation engine that surfaces relevant products across the storefront and exposes analytics to admins.
+
+### Strategies
+
+| Strategy | Where it Appears | How it Works |
+|---|---|---|
+| **Similar Products** | Product page, Cart "You Might Also Like" | Content-based scoring on category, sub-category, price range, and bestseller status |
+| **Frequently Bought Together** | Product page | Co-occurrence analysis across the order history |
+| **Picked For You** | Home page (logged-in users) | Weighted by the user's past purchases, with bestseller fallback for new shoppers |
+| **Trending Now** | Home page | Most-ordered products in the last 30 days, with a "Newly Arrived" fallback |
+
+### API Endpoints
+
+```
+POST  /api/recommendations/similar              { productId }
+POST  /api/recommendations/bought-together      { productId }
+POST  /api/recommendations/personalized         (auth required)
+GET   /api/recommendations/trending
+GET   /api/recommendations/analytics/trending   (admin)
+GET   /api/recommendations/analytics/copurchase (admin)
+```
+
+### Admin Insights
+
+The admin panel includes an **Insights** page that shows:
+- Top trending products (last 30 days) with units ordered
+- Frequently co-purchased product pairs
+- Headline stats (orders, trending count, pair count)
 
 ## 🛠️ Tech Stack
 
@@ -21,7 +53,7 @@ Shopora is a full-stack e-commerce application built with the MERN stack (MongoD
 
 - `/frontend`: Customer-facing React application.
 - `/admin`: Management dashboard for shop owners.
-- `/backend`: Node.js API server.
+- `/backend`: Node.js API server, including the recommendation engine (`controllers/recommendationController.js`).
 
 ## 🛠️ Setup & Installation
 

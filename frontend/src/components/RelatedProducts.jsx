@@ -1,34 +1,52 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { ShopContext } from '../context/ShopContext';
 import ProductItem from './ProductItem';
-import Title from './Title'; // Ensure Title component is imported
+import Title from './Title';
+import axios from 'axios';
 
-const RelatedProducts = ({ category, subCategory }) => {
-  const { products } = useContext(ShopContext);
+const RelatedProducts = ({ category, subCategory, productId }) => {
+  const { products, backendUrl } = useContext(ShopContext);
   const [related, setRelated] = useState([]);
 
   useEffect(() => {
-    if (products.length > 0) {
-      let productsCopy = products.slice();
-      productsCopy = productsCopy.filter((item) => category === item.category);
-      productsCopy = productsCopy.filter((item) => subCategory === item.subCategory);
-      setRelated(productsCopy.slice(0, 5));
-    }
-  }, [products, category, subCategory]);
+    if (!productId) return;
+
+    const fetchSimilar = async () => {
+      try {
+        const res = await axios.post(backendUrl + '/api/recommendations/similar', { productId });
+        if (res.data.success && res.data.products.length > 0) {
+          setRelated(res.data.products);
+          return;
+        }
+      } catch {
+        // fall through to local filter
+      }
+      // Fallback: local category/subCategory filter
+      const filtered = products
+        .filter(p => p._id !== productId && p.category === category && p.subCategory === subCategory)
+        .slice(0, 5);
+      setRelated(filtered);
+    };
+
+    fetchSimilar();
+  }, [productId, products, category, subCategory, backendUrl]);
+
+  if (related.length === 0) return null;
 
   return (
     <div className="my-24">
       <div className="text-center text-3xl py-2">
-        <Title text1={'RELATED'} text2={'PRODUCTS'} />
+        <Title text1={'SIMILAR'} text2={'PRODUCTS'} />
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-y-6">
-        {related.map((item, index) => (
+        {related.slice(0, 5).map((item, index) => (
           <ProductItem
             key={index}
             id={item._id}
             name={item.name}
             price={item.price}
             image={item.image}
+            images={item.images}
           />
         ))}
       </div>

@@ -3,10 +3,14 @@ import { ShopContext } from '../context/ShopContext';
 import Title from '../components/Title';
 import { assets } from '../assets/assets';
 import CartTotal from '../components/CartTotal';
+import ProductItem from '../components/ProductItem';
+import axios from 'axios';
 
 const Cart = () => {
-  const { products, currency, cartItems, updateQuantity, navigate} = useContext(ShopContext);
+  const { products, currency, cartItems, updateQuantity, navigate, backendUrl } = useContext(ShopContext);
   const [cartData, setCartData] = useState([]);
+  const [youMightLike, setYouMightLike] = useState([]);
+
   useEffect(()=>{
     if(products.length > 0){
       const tempData = [];
@@ -23,8 +27,34 @@ const Cart = () => {
     }
     setCartData(tempData);
     }
-    
   }, [cartItems, products])
+
+  // Fetch "You Might Also Like" based on first cart item's similar products
+  useEffect(() => {
+    const cartIds = Object.keys(cartItems).filter(id => {
+      return Object.values(cartItems[id] || {}).some(qty => qty > 0);
+    });
+
+    if (cartIds.length === 0) {
+      setYouMightLike([]);
+      return;
+    }
+
+    const fetchSuggestions = async () => {
+      try {
+        const res = await axios.post(backendUrl + '/api/recommendations/similar', { productId: cartIds[0] });
+        if (res.data.success && res.data.products.length > 0) {
+          // Exclude items already in cart
+          const cartSet = new Set(cartIds);
+          setYouMightLike(res.data.products.filter(p => !cartSet.has(p._id)).slice(0, 4));
+        }
+      } catch {
+        // silently skip
+      }
+    };
+
+    fetchSuggestions();
+  }, [cartItems, backendUrl]);
   return (
     <div className='border-t pt-14'>
       <div className='text-2xl mb-3'>
@@ -84,6 +114,27 @@ const Cart = () => {
           </>
         )}
       </div>
+
+      {youMightLike.length > 0 && (
+        <div className="mt-16 border-t pt-12">
+          <div className="text-center mb-8">
+            <Title text1={'YOU MIGHT'} text2={'ALSO LIKE'} />
+            <p className="text-sm text-gray-400 -mt-4">Items that go well with your cart</p>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-y-6">
+            {youMightLike.map((item, index) => (
+              <ProductItem
+                key={index}
+                id={item._id}
+                name={item.name}
+                price={item.price}
+                image={item.image}
+                images={item.images}
+              />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

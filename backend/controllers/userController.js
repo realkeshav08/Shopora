@@ -129,6 +129,9 @@ const updateProfile = async (req, res) => {
             return res.json({ success: false, message: "User not found" });
         }
 
+        // Notify the admin panel so name / phone / photo changes appear live.
+        req.app.get('io')?.emit('users:updated');
+
         res.json({ success: true, message: "Profile Updated" });
     } catch (error) {
         console.log(error);
@@ -140,23 +143,28 @@ const updateProfile = async (req, res) => {
 const forgotPassword = async (req, res) => {
     try {
         const { email } = req.body;
-        const user = await userModel.findOne({ email });
-
-        if (!user) {
-            return res.json({ success: false, message: "User not found" });
+        if (!email || typeof email !== 'string') {
+            return res.json({ success: false, message: "A valid email is required" });
         }
 
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        user.resetOTP = otp;
-        user.resetOTPExpire = Date.now() + 15 * 60 * 1000; // 15 mins
-        await user.save();
+        const user = await userModel.findOne({ email });
 
-        await sendMail({
-            to: email,
-            subject: 'Password Reset OTP - Shopora',
-            text: `Your OTP for resetting password is: ${otp}. It is valid for 15 minutes.`
-        });
-        res.json({ success: true, message: "OTP sent to your email" });
+        // Only generate/send an OTP if the account exists — but always return
+        // the same response, so attackers can't enumerate registered emails.
+        if (user) {
+            const otp = Math.floor(100000 + Math.random() * 900000).toString();
+            user.resetOTP = otp;
+            user.resetOTPExpire = Date.now() + 15 * 60 * 1000; // 15 mins
+            await user.save();
+
+            await sendMail({
+                to: email,
+                subject: 'Password Reset OTP - Shopora',
+                text: `Your OTP for resetting password is: ${otp}. It is valid for 15 minutes.`
+            });
+        }
+
+        res.json({ success: true, message: "If an account exists for that email, an OTP has been sent." });
 
     } catch (error) {
         console.log(error);
@@ -168,9 +176,14 @@ const forgotPassword = async (req, res) => {
 const resetPassword = async (req, res) => {
     try {
         const { email, otp, newPassword } = req.body;
+        if (!email || !otp || !newPassword) {
+            return res.json({ success: false, message: "Email, OTP and new password are required" });
+        }
+
         const user = await userModel.findOne({ email });
 
-        if (!user || user.resetOTP !== otp || user.resetOTPExpire < Date.now()) {
+        // Reject if no OTP was issued, it doesn't match, or it has expired.
+        if (!user || !user.resetOTP || user.resetOTP !== otp || user.resetOTPExpire < Date.now()) {
             return res.json({ success: false, message: "Invalid or expired OTP" });
         }
 

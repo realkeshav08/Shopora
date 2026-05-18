@@ -29,7 +29,10 @@ const placeOrder = async (req, res) => {
                 unavailable.push(`${product.name}${item.size ? ` (${item.size})` : ''}`)
                 continue
             }
-            subtotal += product.price * (Number(item.quantity) || 1)
+            // Clamp quantity to a positive integer — never trust the client
+            // (a negative quantity would otherwise shrink the order total).
+            const qty = Math.max(1, Math.floor(Number(item.quantity)) || 1)
+            subtotal += product.price * qty
         }
         if (unavailable.length > 0) {
             return res.json({

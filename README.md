@@ -14,7 +14,7 @@ Shopora is a full-stack e-commerce application built with the MERN stack (MongoD
 - **Real-time Sync** — catalog, stock, order and user changes propagate live between the storefront and admin via Socket.IO — no page refresh.
 - **Per-size Stock** — each size of a product can be individually marked in/out of stock; the storefront and checkout enforce it.
 - **Smart Recommendation Engine** — personalized "For You" picks, trending products, similar items, and "frequently bought together" suggestions (content-based + collaborative filtering).
-- **Secure Authentication** — JWT auth (7-day expiry) for users and admins; bcrypt-hashed passwords.
+- **Security** — JWT auth (7-day expiry), bcrypt-hashed passwords, rate-limited auth endpoints, NoSQL-injection sanitization, server-verified order totals, and a shared-secret guard on the recommendation service.
 - **Payment** — Cash on Delivery (Stripe / Razorpay scaffolded).
 - **Cloud Media** — product images on Cloudinary; transactional email via Resend.
 - Prices shown in **INR (₹)**.

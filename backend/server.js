@@ -16,6 +16,9 @@ import recommendationRouter from './routes/recommendationRoute.js'
 //App config
 const app = express()
 const port = process.env.PORT || 4000
+// Trust the first proxy hop (Render's load balancer) so req.ip is the real
+// client IP — required for correct per-IP rate limiting in production.
+app.set('trust proxy', 1)
 connectDB();
 connectCloudinary();
 
@@ -36,6 +39,20 @@ app.use(cors({
 }));
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+
+// Strip MongoDB operator keys ($gt, dotted paths, etc.) from request bodies
+// to block NoSQL operator injection.
+const sanitizeMongo = (obj) => {
+    if (!obj || typeof obj !== 'object') return;
+    for (const key of Object.keys(obj)) {
+        if (key.startsWith('$') || key.includes('.')) {
+            delete obj[key];
+        } else {
+            sanitizeMongo(obj[key]);
+        }
+    }
+};
+app.use((req, res, next) => { sanitizeMongo(req.body); next(); });
 
 // api endpoints
 app.use('/api/newsletter', newsletterRouter);

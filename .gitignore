@@ -106,5 +106,9 @@ seed-image-dataset/
 # Leading slash = root only, so backend/data/ (seed config) is still tracked.
 /data/
 
+# Project notes (PDFs, docs) — kept locally, not committed
+notes/
+**/notes/
+
 # TypeScript build info
 *.tsbuildinfo

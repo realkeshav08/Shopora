@@ -145,7 +145,23 @@ const ShopContextProvider = (props) => {
         try{
             const response = await axios.post(backendUrl + '/api/cart/get', {}, {headers: {token}})
             if(response.data.success){
-                setCartItems(response.data.message || {});
+                const backendCart = response.data.message || {};
+                // Merge with whatever is already in the cart (it's restored from
+                // localStorage) instead of overwriting — so a cart added before
+                // login is never lost. Math.max avoids double-counting items
+                // that already exist on both sides.
+                setCartItems(prev => {
+                    const merged = structuredClone(backendCart);
+                    for (const id in prev) {
+                        for (const size in prev[id]) {
+                            if (prev[id][size] > 0) {
+                                merged[id] = merged[id] || {};
+                                merged[id][size] = Math.max(merged[id][size] || 0, prev[id][size]);
+                            }
+                        }
+                    }
+                    return merged;
+                });
             }
         }
         catch (error){

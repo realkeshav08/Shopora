@@ -6,13 +6,14 @@ import Logo from './Logo';
 
 const NavBar = () => {
     const [visible, setVisible] = useState(false);
-    const { setShowSearch, getCartCount, navigate, token, setToken, setCartItems } = useContext(ShopContext);
+    const { setShowSearch, getCartCount, navigate, token, setToken } = useContext(ShopContext);
 
     const logout = () => {
       navigate('/login')
       localStorage.removeItem('token')
       setToken('')
-      setCartItems({})
+      // Note: the cart is intentionally NOT cleared — it stays in localStorage
+      // so it persists across logout (and back through a later login).
     }
 
     // Styling for the mobile menu links, with an active-route highlight.

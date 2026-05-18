@@ -1,8 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
-const envResult = dotenv.config();
-console.log("Dotenv load result:", envResult.parsed ? "Success" : "Failed");
+dotenv.config();
 import connectDB from './config/mongodb.js'
 import connectCloudinary from './config/cloudinary.js'
 import userRouter from './routes/userRoute.js'
@@ -16,11 +15,23 @@ import recommendationRouter from './routes/recommendationRoute.js'
 const app = express()
 const port = process.env.PORT || 4000
 connectDB();
-console.log("Cloudinary Key from Process:", process.env.CLOUDINARY_API_KEY);
 connectCloudinary();
 
 // middlewares
-app.use(cors())
+// Restrict CORS to the origins listed in ALLOWED_ORIGINS (comma-separated).
+// If the var is unset, fall back to open CORS for local development.
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(',').map((o) => o.trim()).filter(Boolean)
+    : null;
+app.use(cors({
+    origin: (origin, callback) => {
+        if (!origin || !allowedOrigins || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+}));
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 

@@ -56,7 +56,7 @@ const addProduct = async (req, res) => {
     } 
     catch (error){
         console.log(error);
-        res.json({success:false, message: error.message})
+        res.json({success:false, message: "Something went wrong. Please try again later."})
     }
 }
 
@@ -68,7 +68,7 @@ const listProducts = async (req, res) => {
     }
     catch (error){
         console.log(error);
-        res.json({success:false, message: error.message})
+        res.json({success:false, message: "Something went wrong. Please try again later."})
     }
 }
 
@@ -80,7 +80,7 @@ const removeProduct = async (req, res) => {
     }
     catch (error) {
         console.log(error);
-        res.json({ success: false, message: error.message })
+        res.json({ success: false, message: "Something went wrong. Please try again later." })
     }
 }
 
@@ -93,7 +93,42 @@ const singleProduct = async (req, res) => {
     }
     catch (error){
         console.log(error)
-        res.json({success:false, message: error.message})
+        res.json({success:false, message: "Something went wrong. Please try again later."})
+    }
+}
+
+// function to edit a product's price and/or description
+const editProduct = async (req, res) => {
+    try {
+        const { id, price, description } = req.body;
+        const update = {};
+
+        if (price !== undefined && price !== '') {
+            const numPrice = Number(price);
+            if (isNaN(numPrice) || numPrice < 0) {
+                return res.json({ success: false, message: "Invalid price" });
+            }
+            update.price = numPrice;
+        }
+        if (description !== undefined) {
+            if (!description.trim()) {
+                return res.json({ success: false, message: "Description cannot be empty" });
+            }
+            update.description = description.trim();
+        }
+        if (Object.keys(update).length === 0) {
+            return res.json({ success: false, message: "Nothing to update" });
+        }
+
+        const updated = await productModel.findByIdAndUpdate(id, update, { new: true });
+        if (!updated) {
+            return res.json({ success: false, message: "Product not found" });
+        }
+        res.json({ success: true, message: "Product updated" });
+    }
+    catch (error) {
+        console.log(error);
+        res.json({ success: false, message: "Something went wrong. Please try again later." });
     }
 }
 
@@ -106,8 +141,8 @@ const updateStatus = async (req, res) => {
     }
     catch (error) {
         console.log(error);
-        res.json({ success: false, message: error.message });
+        res.json({ success: false, message: "Something went wrong. Please try again later." });
     }
 }
 
-export { listProducts, addProduct, removeProduct, singleProduct, updateStatus }
+export { listProducts, addProduct, removeProduct, singleProduct, updateStatus, editProduct }

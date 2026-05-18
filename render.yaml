@@ -1,0 +1,64 @@
+# Render Blueprint — deploys the Shopora backend API and the Python
+# recommendation microservice. Import this from the Render dashboard
+# (New > Blueprint). Secrets (sync: false) are entered in the dashboard.
+
+services:
+  # ---- Node.js API backend ----
+  - type: web
+    name: shopora-backend
+    runtime: node
+    rootDir: backend
+    plan: free
+    region: oregon
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI_PROD
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: CLOUDINARY_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_SECRET_KEY
+        sync: false
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: EMAIL_PASS
+        sync: false
+      - key: SENDER_EMAIL
+        sync: false
+      - key: ALLOWED_ORIGINS          # https://<storefront>.vercel.app,https://<admin>.vercel.app
+        sync: false
+      - key: RECO_SERVICE_KEY         # same value as the recommendation service
+        sync: false
+      - key: RECOMMENDATION_SERVICE_URL  # https://shopora-recommendations.onrender.com
+        sync: false
+
+  # ---- Python recommendation microservice ----
+  - type: web
+    name: shopora-recommendations
+    runtime: python
+    rootDir: recommendation-service
+    plan: free
+    region: oregon
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: MONGODB_URI_OVERRIDE     # full Atlas URI including /e-commerce
+        sync: false
+      - key: RECO_SERVICE_KEY         # same value as the backend
+        sync: false

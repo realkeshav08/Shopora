@@ -10,6 +10,9 @@ const Profile = () => {
     const [userData, setUserData] = useState(null);
     const [isEdit, setIsEdit] = useState(false);
     const [image, setImage] = useState(false);
+    const [showPasswordForm, setShowPasswordForm] = useState(false);
+    const [passwordData, setPasswordData] = useState({ current: '', newPass: '', confirm: '' });
+    const [changingPassword, setChangingPassword] = useState(false);
 
     const loadUserProfileData = async () => {
         try {
@@ -50,6 +53,52 @@ const Profile = () => {
         } catch (error) {
             console.log(error);
             toast.error(error.message);
+        }
+    }
+
+    const cancelPasswordChange = () => {
+        setShowPasswordForm(false);
+        setPasswordData({ current: '', newPass: '', confirm: '' });
+    }
+
+    const handleChangePassword = async () => {
+        const { current, newPass, confirm } = passwordData;
+
+        if (!current || !newPass || !confirm) {
+            toast.error('Please fill in all password fields');
+            return;
+        }
+        if (newPass.length < 8) {
+            toast.error('New password must be at least 8 characters');
+            return;
+        }
+        if (newPass !== confirm) {
+            toast.error('New passwords do not match');
+            return;
+        }
+        if (newPass === current) {
+            toast.error('New password must be different from the current one');
+            return;
+        }
+
+        try {
+            setChangingPassword(true);
+            const response = await axios.post(
+                backendUrl + '/api/user/change-password',
+                { currentPassword: current, newPassword: newPass },
+                { headers: { token } }
+            );
+            if (response.data.success) {
+                toast.success(response.data.message);
+                cancelPasswordChange();
+            } else {
+                toast.error(response.data.message);
+            }
+        } catch (error) {
+            console.log(error);
+            toast.error(error.message);
+        } finally {
+            setChangingPassword(false);
         }
     }
 
@@ -187,15 +236,64 @@ const Profile = () => {
                             </div>
                         </div>
 
-                        <div className='bg-white/40 backdrop-blur-md rounded-[3rem] p-10 border border-primary/5 shadow-sm opacity-60 grayscale'>
+                        <div className='bg-white/40 backdrop-blur-md rounded-[3rem] p-10 border border-primary/5 shadow-sm'>
                             <p className='text-xl font-bold text-gray-800 mb-6'>Account Security</p>
                             <div className='flex items-center justify-between py-4 border-b border-primary/5'>
                                 <div>
                                     <p className='font-medium text-gray-800'>Change Password</p>
                                     <p className='text-sm text-gray-500'>Keep your account secure with a strong password.</p>
                                 </div>
-                                <button disabled className='text-primary font-bold cursor-not-allowed'>Coming Soon</button>
+                                {!showPasswordForm && (
+                                    <button
+                                        onClick={() => setShowPasswordForm(true)}
+                                        className='text-primary font-bold hover:text-secondary transition-colors'
+                                    >
+                                        Change
+                                    </button>
+                                )}
                             </div>
+
+                            {showPasswordForm && (
+                                <div className='mt-6 space-y-4'>
+                                    <input
+                                        type='password'
+                                        placeholder='Current password'
+                                        value={passwordData.current}
+                                        onChange={(e) => setPasswordData(prev => ({ ...prev, current: e.target.value }))}
+                                        className='bg-white/50 border border-primary/10 rounded-lg px-3 py-2 w-full outline-none focus:border-primary'
+                                    />
+                                    <input
+                                        type='password'
+                                        placeholder='New password (min 8 characters)'
+                                        value={passwordData.newPass}
+                                        onChange={(e) => setPasswordData(prev => ({ ...prev, newPass: e.target.value }))}
+                                        className='bg-white/50 border border-primary/10 rounded-lg px-3 py-2 w-full outline-none focus:border-primary'
+                                    />
+                                    <input
+                                        type='password'
+                                        placeholder='Confirm new password'
+                                        value={passwordData.confirm}
+                                        onChange={(e) => setPasswordData(prev => ({ ...prev, confirm: e.target.value }))}
+                                        className='bg-white/50 border border-primary/10 rounded-lg px-3 py-2 w-full outline-none focus:border-primary'
+                                    />
+                                    <div className='flex gap-3 pt-1'>
+                                        <button
+                                            onClick={handleChangePassword}
+                                            disabled={changingPassword}
+                                            className='py-2 px-6 rounded-2xl bg-primary text-white font-bold hover:bg-secondary transition-all active:scale-95 shadow-md shadow-primary/20 disabled:opacity-60 disabled:cursor-not-allowed'
+                                        >
+                                            {changingPassword ? 'Updating...' : 'Update Password'}
+                                        </button>
+                                        <button
+                                            onClick={cancelPasswordChange}
+                                            disabled={changingPassword}
+                                            className='py-2 px-6 rounded-2xl bg-gray-100 text-gray-600 font-medium hover:bg-gray-200 transition-all'
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

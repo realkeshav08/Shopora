@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer';
+import { transporter, mailFrom, mailReplyTo } from '../config/mailer.js';
 import newsletterModel from "../models/newsletterModel.js";
 
 const subscribeNewsletter = async (req, res) => {
@@ -21,18 +21,9 @@ const subscribeNewsletter = async (req, res) => {
         });
         await newSubscriber.save();
 
-        // Create a transporter
-        // NOTE: For a real application, you would use actual SMTP settings in .env
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: process.env.SENDER_EMAIL,
-                pass: process.env.EMAIL_PASS
-            }
-        });
-
         const mailOptions = {
-            from: `"Shopora" <shopora@keshavkashyap.me>`,
+            from: mailFrom,
+            replyTo: mailReplyTo,
             to: email,
             subject: 'Welcome to Shopora Newsletter!',
             html: `
@@ -46,7 +37,7 @@ const subscribeNewsletter = async (req, res) => {
                     </div>
                     <p style="margin-top: 40px; font-size: 0.8em; color: #777; text-align: center;">
                         You received this email because you subscribed to the Shopora newsletter.<br>
-                        Shopora © 2024
+                        Shopora © 2026
                     </p>
                 </div>
             `

@@ -108,11 +108,11 @@ const PlaceOrder = () => {
         <div className='mt-12'>
           <Title text1={'PAYMENT'} text2={'METHOD'} />
           <div className='flex gap-3 flex-col lg:flex-row'>
-            <div onClick={() => { setMethod('stripe'); toast.info('Stripe payment is coming soon!') }} className='flex items-center gap-3 border p-2 px-3 cursor-pointer'>
+            <div onClick={() => toast.info('Stripe payment is coming soon! Cash on Delivery is available for now.')} className='flex items-center gap-3 border p-2 px-3 cursor-pointer'>
               <p className={`min-w-3.5 h-3.5 border rounded-full ${method === 'stripe' ? 'bg-primary' : ''}`}></p>
               <img className={`h-5 mx-4`} src={assets.stripe_logo} alt="Stripe" />
             </div>
-            <div onClick={() => { setMethod('razorpay'); toast.info('Razorpay payment is coming soon!') }} className='flex items-center gap-3 border p-2 px-3 cursor-pointer'>
+            <div onClick={() => toast.info('Razorpay payment is coming soon! Cash on Delivery is available for now.')} className='flex items-center gap-3 border p-2 px-3 cursor-pointer'>
               <p className={`min-w-3.5 h-3.5 border rounded-full ${method === 'razorpay' ? 'bg-primary' : ''}`} ></p>
               <img className={`h-5 mx-4`} src={assets.razorpay_logo} alt="Razorpay" />
             </div>

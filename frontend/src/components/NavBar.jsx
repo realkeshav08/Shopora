@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react';
 import { assets } from '../assets/assets';
 import { Link, NavLink } from 'react-router-dom';
 import { ShopContext } from '../context/ShopContext';
+import Logo from './Logo';
 
 const NavBar = () => {
     const [visible, setVisible] = useState(false);
@@ -15,7 +16,7 @@ const NavBar = () => {
   return (
     <div className="sticky top-0 z-50 flex items-center justify-between py-5 px-6 sm:px-12 font-medium bg-[#fff1f6]/80 backdrop-blur-lg border-b border-primary/10 transition-all">
       {/* Logo */}
-      <Link to='/'><img src={assets.logo} className="w-36" alt="Logo" /></Link>
+      <Link to='/'><Logo /></Link>
 
       {/* Navigation Links */}
       <ul className="hidden sm:flex gap-5 text-sm text-gray-700">

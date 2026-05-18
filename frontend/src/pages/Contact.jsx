@@ -18,7 +18,7 @@ const Contact = () => {
           <div className='space-y-4'>
             <p className='font-bold text-2xl text-gray-800'>Our Store</p>
             <p className='text-gray-500 leading-relaxed'>Hostel- B BLOCK - IIIT KOTA, <br /> Ranpur, Rajasthan 325003, India </p>
-            <p className='text-gray-500'>Tel: <span className='text-gray-800 font-medium'>(+91) 6378606XXX</span> <br /> Email: <span className='text-gray-800 font-medium'>shopora@keshavkashyap.me</span></p>
+            <p className='text-gray-500'>Tel: <span className='text-gray-800 font-medium'>(+91) 6378606XXX</span> <br /> Email: <a href='mailto:asuskeshavkashyap@gmail.com' className='text-gray-800 font-medium hover:text-primary transition-colors'>shopora@keshavkashyap.me</a></p>
           </div>
           
           <div className='space-y-4 pt-4'>

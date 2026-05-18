@@ -1,10 +1,35 @@
 import orderModel from "../models/orderModel.js"
 import userModel from "../models/userModel.js"
+import productModel from "../models/productModel.js"
+
+const DELIVERY_FEE = 10
 
 const placeOrder = async (req, res) => {
     try {
         const { userId } = req;
-        const { items, amount, address} = req.body
+        const { items, address } = req.body
+
+        if (!Array.isArray(items) || items.length === 0) {
+            return res.json({ success: false, message: "Your cart is empty" })
+        }
+        if (!address || typeof address !== 'object') {
+            return res.json({ success: false, message: "Delivery address is required" })
+        }
+
+        // Never trust a client-supplied total — recompute the amount from the
+        // current product prices in the database.
+        let subtotal = 0
+        for (const item of items) {
+            const product = await productModel.findById(item._id || item.id).catch(() => null)
+            if (product) {
+                subtotal += product.price * (Number(item.quantity) || 1)
+            }
+        }
+        if (subtotal <= 0) {
+            return res.json({ success: false, message: "Could not verify the order items" })
+        }
+        const amount = subtotal + DELIVERY_FEE
+
         const orderData = {
             userId,
             items,
@@ -23,7 +48,7 @@ const placeOrder = async (req, res) => {
     }
     catch (error){
         console.log(error)
-        res.json({success: false, message: error.message})
+        res.json({success: false, message: "Something went wrong. Please try again later."})
     }
 }
 
@@ -45,7 +70,7 @@ const allOrders = async (req, res) => {
     }
     catch(error){
         console.log(error)
-        res.json({success: false, message: error.message})
+        res.json({success: false, message: "Something went wrong. Please try again later."})
     }
 }
 
@@ -58,7 +83,7 @@ const userOrders = async (req, res) => {
     }
     catch (error){
         console.log(error)
-        res.json({success: false, message: error.message})
+        res.json({success: false, message: "Something went wrong. Please try again later."})
     }
 }
 
@@ -71,7 +96,7 @@ const updateStatus = async (req, res) => {
     }
     catch (error){
         console.log(error)
-        res.json({success: false, message: error.message})
+        res.json({success: false, message: "Something went wrong. Please try again later."})
     }
 }
 

@@ -25,7 +25,7 @@ const addToCart = async (req, res) => {
     }
     catch(error){
         console.log(error)
-        res.json({success: false, message: error.message});
+        res.json({success: false, message: "Something went wrong. Please try again later."});
     }
 }
 
@@ -48,7 +48,7 @@ const updateCart = async (req, res) => {
     }
     catch(error){
         console.log(error)
-        res.json({success: false, message: error.message});
+        res.json({success: false, message: "Something went wrong. Please try again later."});
     }
 }
 
@@ -62,7 +62,7 @@ const getUserCart = async (req, res) => {
     }
     catch(error){
         console.log(error)
-        res.json({success: false, message: error.message})
+        res.json({success: false, message: "Something went wrong. Please try again later."})
     }
 }
 

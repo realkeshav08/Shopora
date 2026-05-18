@@ -24,6 +24,17 @@ const Product = () => {
     fetchProductData();
   }, [productId, products]);
 
+  // If this product is already in the cart, pre-select that size so the
+  // selection (and quantity controls) survive navigating away and back.
+  useEffect(() => {
+    const sizesInCart = cartItems?.[productId]
+      ? Object.keys(cartItems[productId]).filter((s) => cartItems[productId][s] > 0)
+      : [];
+    if (sizesInCart.length > 0) {
+      setSize((prev) => prev || sizesInCart[0]);
+    }
+  }, [productId, cartItems]);
+
   return productData ? (
     <div className="border-t-2 pt-10 transition-opacity ease-in duration-500 opacity-100">
       {/* Product Section */}

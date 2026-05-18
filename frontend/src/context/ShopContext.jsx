@@ -9,14 +9,25 @@ import { products as assetsProducts } from "../assets/assets";
 export const ShopContext = createContext(); 
 
 const ShopContextProvider = (props) => { 
-    const currency = '$'; 
+    const currency = '₹';
     const delivery_fee = 10; 
     const backendUrl = import.meta.env.VITE_BACKEND_URL
-    console.log(backendUrl)
     const [search, setSearch] = useState('');
     const [showSearch, setShowSearch] = useState(false);
-    const [cartItems, setCartItems] = useState({});
+    // Rehydrate the cart from localStorage so it survives a page refresh
+    // (covers guests; for logged-in users getUserCart then syncs from the server).
+    const [cartItems, setCartItems] = useState(() => {
+        try {
+            const stored = localStorage.getItem('cartItems');
+            return stored ? JSON.parse(stored) : {};
+        } catch {
+            return {};
+        }
+    });
     const [products, setProducts] = useState(assetsProducts)
+    // True until the real product list has been fetched from the backend, so
+    // pages can show skeletons instead of flashing the bundled fallback list.
+    const [productsLoading, setProductsLoading] = useState(true)
     const [token, setToken] = useState('')
     const navigate = useNavigate();
 
@@ -41,9 +52,6 @@ const ShopContextProvider = (props) => {
         setCartItems(cartData);
         if(token){
             try{
-                console.log(token)
-                console.log(itemId)
-                console.log(size)
                 await axios.post(backendUrl + '/api/cart/add', {itemId, size}, {headers:{token}})
             }
             catch(error){
@@ -76,9 +84,7 @@ const ShopContextProvider = (props) => {
         setCartItems(cartData);
         if(token){
             try{
-                console.log("Updating Cart:", {itemId, size, quantity});
-                const response = await axios.post(backendUrl + '/api/cart/update', {itemId, size, quantity}, {headers: {token}})
-                console.log("Update Response:", response.data);
+                await axios.post(backendUrl + '/api/cart/update', {itemId, size, quantity}, {headers: {token}})
             }
             catch(error){
                 console.log(error);
@@ -106,6 +112,7 @@ const ShopContextProvider = (props) => {
 
     const getProductsData = async () => {
         try {
+            setProductsLoading(true)
             const response = await axios.get(backendUrl + '/api/product/list')
             if(response.data.success){
                 // Only update if the backend actually has products to show
@@ -124,6 +131,9 @@ const ShopContextProvider = (props) => {
             console.log(error)
             toast.error(error.message)
         }
+        finally {
+            setProductsLoading(false)
+        }
     }
 
     const getUserCart = async (token) => {
@@ -138,6 +148,11 @@ const ShopContextProvider = (props) => {
             toast.error(error.message)
         }
     }
+    // Persist the cart on every change so a refresh never loses it.
+    useEffect(()=>{
+        localStorage.setItem('cartItems', JSON.stringify(cartItems))
+    }, [cartItems])
+
     useEffect(()=>{
         getProductsData()
     }, [token])
@@ -149,14 +164,14 @@ const ShopContextProvider = (props) => {
         }
     }, [token])
 
-    const value = { 
-        products, currency, delivery_fee,
+    const value = {
+        products, productsLoading, currency, delivery_fee,
         search, setSearch, showSearch, setShowSearch,
-        cartItems, setCartItems, addToCart, 
+        cartItems, setCartItems, addToCart,
         getCartCount, updateQuantity, getCartAmount,
         navigate, backendUrl, token, setToken,
         setProducts
-    } 
+    }
     return ( 
         <ShopContext.Provider value={value}> 
             {props.children}

@@ -1,6 +1,6 @@
 import React from 'react'
 import Title from '../components/Title'
-import { assets } from '../assets/assets'
+import Logo from '../components/Logo'
 
 const Jobs = () => {
   return (
@@ -12,7 +12,7 @@ const Jobs = () => {
 
       <div className='bg-white/40 backdrop-blur-md rounded-[3rem] p-10 sm:p-20 border border-primary/5 shadow-sm text-center max-w-4xl w-full mx-auto'>
         <div className='mb-10'>
-          <img src={assets.logo} alt="Shopora" className='w-32 mx-auto mb-8 opacity-80' />
+          <Logo className='mb-8 opacity-80' />
           <h2 className='text-3xl font-bold text-gray-800 mb-6'>Current Openings</h2>
           <p className='text-gray-600 text-lg leading-relaxed mb-8'>
             At Shopora, we are building the future of e-commerce. While we don't have specific job listings posted right now, we are always eager to meet passionate people.
@@ -23,7 +23,7 @@ const Jobs = () => {
             <p className='text-gray-700 leading-relaxed'>
                 Please send your updated resume and a brief cover letter explaining why you'd like to join us to:
             </p>
-            <a href="mailto:shopora@keshavkashyap.me" className='text-2xl font-bold text-gray-900 block mt-4 hover:text-primary transition-colors'>
+            <a href="mailto:asuskeshavkashyap@gmail.com" className='text-2xl font-bold text-gray-900 block mt-4 hover:text-primary transition-colors'>
                 shopora@keshavkashyap.me
             </a>
           </div>

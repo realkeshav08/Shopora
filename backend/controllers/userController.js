@@ -4,18 +4,10 @@ import validator from 'validator';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { v2 as cloudinary } from 'cloudinary';
-import nodemailer from 'nodemailer';
-
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.SENDER_EMAIL,
-        pass: process.env.EMAIL_PASS
-    }
-});
+import { transporter, mailFrom, mailReplyTo } from '../config/mailer.js';
 
 const createToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET)
+    return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '7d' })
 }
 // Route for user login
 const loginUser = async (req, res) => {
@@ -37,7 +29,7 @@ const loginUser = async (req, res) => {
     }
     catch (err) {
         console.error(err);
-        res.json({ success: false, message: error.message });
+        res.json({ success: false, message: "Something went wrong. Please try again later." });
     }
 }
 
@@ -70,7 +62,7 @@ const registerUser = async (req, res) => {
     }
     catch (error){
         console.log(error);
-        res.json({success: false, message: error.message})
+        res.json({success: false, message: "Something went wrong. Please try again later."})
     }
 }
 
@@ -81,7 +73,7 @@ const adminLogin = async (req, res) => {
         
         // 1. Check Master Admin from .env
         if(email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD){
-            const token = jwt.sign(email + password, process.env.JWT_SECRET);
+            const token = jwt.sign({ role: 'admin' }, process.env.JWT_SECRET, { expiresIn: '7d' });
             return res.json({ success: true, token });
         }
 
@@ -90,7 +82,7 @@ const adminLogin = async (req, res) => {
         if (user && user.role === 'admin') {
             const isMatch = await bcrypt.compare(password, user.password);
             if (isMatch) {
-                const token = jwt.sign(user._id.toString(), process.env.JWT_SECRET);
+                const token = jwt.sign({ id: user._id.toString(), role: 'admin' }, process.env.JWT_SECRET, { expiresIn: '7d' });
                 return res.json({ success: true, token });
             }
         }
@@ -99,7 +91,7 @@ const adminLogin = async (req, res) => {
     }
     catch (error) {
         console.log(error);
-        res.json({ success: false, message: error.message });
+        res.json({ success: false, message: "Something went wrong. Please try again later." });
     }
 }
 
@@ -108,11 +100,10 @@ const getProfile = async (req, res) => {
     try {
         const { userId } = req;
         const user = await userModel.findById(userId).select('-password');
-        console.log("Database User Profile:", user);
         res.json({ success: true, user });
     } catch (error) {
         console.log(error);
-        res.json({ success: false, message: error.message });
+        res.json({ success: false, message: "Something went wrong. Please try again later." });
     }
 }
 
@@ -126,14 +117,10 @@ const updateProfile = async (req, res) => {
         let updateData = { name, phone, address };
 
         if (imageFile) {
-            console.log("Uploading image to Cloudinary...");
             const imageUpload = await cloudinary.uploader.upload(imageFile.path, { resource_type: 'image' });
             updateData.image = imageUpload.secure_url;
-            console.log("Cloudinary URL:", updateData.image);
         }
 
-        console.log("Updating User with ID:", userId);
-        
         const updatedUser = await userModel.findByIdAndUpdate(userId, { name, phone, address, image: updateData.image }, { new: true });
         
         if (!updatedUser) {
@@ -143,7 +130,7 @@ const updateProfile = async (req, res) => {
         res.json({ success: true, message: "Profile Updated" });
     } catch (error) {
         console.log(error);
-        res.json({ success: false, message: error.message });
+        res.json({ success: false, message: "Something went wrong. Please try again later." });
     }
 }
 
@@ -163,7 +150,8 @@ const forgotPassword = async (req, res) => {
         await user.save();
 
         const mailOptions = {
-            from: process.env.SENDER_EMAIL,
+            from: mailFrom,
+            replyTo: mailReplyTo,
             to: email,
             subject: 'Password Reset OTP - Shopora',
             text: `Your OTP for resetting password is: ${otp}. It is valid for 15 minutes.`
@@ -174,7 +162,7 @@ const forgotPassword = async (req, res) => {
 
     } catch (error) {
         console.log(error);
-        res.json({ success: false, message: error.message });
+        res.json({ success: false, message: "Something went wrong. Please try again later." });
     }
 }
 
@@ -204,8 +192,61 @@ const resetPassword = async (req, res) => {
 
     } catch (error) {
         console.log(error);
-        res.json({ success: false, message: error.message });
+        res.json({ success: false, message: "Something went wrong. Please try again later." });
     }
 }
 
-export { loginUser, registerUser, adminLogin, getProfile, updateProfile, forgotPassword, resetPassword };
+// API to change password for a logged-in user
+const changePassword = async (req, res) => {
+    try {
+        const { userId } = req;
+        const { currentPassword, newPassword } = req.body;
+
+        if (!currentPassword || !newPassword) {
+            return res.json({ success: false, message: "All fields are required" });
+        }
+        if (newPassword.length < 8) {
+            return res.json({ success: false, message: "New password must be at least 8 characters" });
+        }
+
+        const user = await userModel.findById(userId);
+        if (!user) {
+            return res.json({ success: false, message: "User not found" });
+        }
+
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!isMatch) {
+            return res.json({ success: false, message: "Current password is incorrect" });
+        }
+
+        const sameAsOld = await bcrypt.compare(newPassword, user.password);
+        if (sameAsOld) {
+            return res.json({ success: false, message: "New password must be different from the current one" });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(newPassword, salt);
+        await user.save();
+
+        res.json({ success: true, message: "Password changed successfully" });
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: "Something went wrong. Please try again later." });
+    }
+}
+
+// API to list all registered users (admin only)
+const listUsers = async (req, res) => {
+    try {
+        const users = await userModel
+            .find({})
+            .select('-password -resetOTP -resetOTPExpire -cartData')
+            .sort({ _id: -1 });
+        res.json({ success: true, users });
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: "Something went wrong. Please try again later." });
+    }
+}
+
+export { loginUser, registerUser, adminLogin, getProfile, updateProfile, forgotPassword, resetPassword, changePassword, listUsers };

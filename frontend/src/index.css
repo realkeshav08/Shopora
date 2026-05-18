@@ -12,6 +12,24 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Smooth fade-in for page/section changes and on reload.
+   Uses opacity + transform only (no layout shift), so it never interferes
+   with scroll-position restoration. */
+@keyframes pageFade {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.page-transition {
+  animation: pageFade 0.4s ease-out both;
+}
+
+/* Respect users who prefer reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .page-transition { animation: none; }
+}
+
 ::selection {
   background-color: #fce7f3;
   color: #db2777;

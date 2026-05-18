@@ -8,6 +8,16 @@ node_modules/
 **/.env
 **/.env.*
 
+# Python (recommendation service)
+__pycache__/
+**/__pycache__/
+*.py[cod]
+venv/
+.venv/
+**/venv/
+*.egg-info/
+.pytest_cache/
+
 # Build outputs
 dist/
 build/
@@ -87,6 +97,14 @@ temp/
 *.tmp
 *.bak
 *.orig
+
+# Source image dataset (used once to seed Cloudinary; not committed)
+seed-image-dataset/
+**/seed-image-dataset/
+
+# Root data folder (brand logo assets; not committed)
+# Leading slash = root only, so backend/data/ (seed config) is still tracked.
+/data/
 
 # TypeScript build info
 *.tsbuildinfo

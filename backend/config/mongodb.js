@@ -5,11 +5,13 @@ const connectDB = async() => {
         console.log(`Connected to MongoDB (${process.env.NODE_ENV || 'development'})`)
     })
 
-    const dbUri = process.env.NODE_ENV === 'production' 
-        ? process.env.MONGODB_URI_PROD 
+    const dbUri = process.env.NODE_ENV === 'production'
+        ? process.env.MONGODB_URI_PROD
         : process.env.MONGODB_URI_DEV || process.env.MONGODB_URI;
 
-    await mongoose.connect(`${dbUri}/e-commerce`)
+    // The `dbName` option selects the database regardless of what the URI's
+    // path/query looks like — robust to connection strings with ?appName=... etc.
+    await mongoose.connect(dbUri, { dbName: 'e-commerce' })
 }
 
 export default connectDB;

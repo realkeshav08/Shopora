@@ -49,7 +49,9 @@ def get_db():
     global _client
     if _client is None:
         _client = MongoClient(_mongo_uri(), serverSelectionTimeoutMS=8000)
-    return _client.get_default_database()
+    # Select the database by name explicitly — robust to connection strings
+    # that carry no path / a ?appName=... query.
+    return _client[DB_NAME]
 
 
 def ping() -> bool:

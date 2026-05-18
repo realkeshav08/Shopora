@@ -1,5 +1,6 @@
-import { createContext, useEffect, useState } from "react"; 
+import { createContext, useEffect, useState } from "react";
 import axios from 'axios';
+import { io } from 'socket.io-client';
 import { toast } from "react-toastify";
 import { useNavigate } from 'react-router-dom';
 import { products as assetsProducts } from "../assets/assets";
@@ -29,6 +30,8 @@ const ShopContextProvider = (props) => {
     // pages can show skeletons instead of flashing the bundled fallback list.
     const [productsLoading, setProductsLoading] = useState(true)
     const [token, setToken] = useState('')
+    // The shared real-time socket — other pages subscribe to it via context.
+    const [socket, setSocket] = useState(null)
     const navigate = useNavigate();
 
     const addToCart = async (itemId, size) => {
@@ -110,9 +113,11 @@ const ShopContextProvider = (props) => {
         return totalAmount;
     }
 
-    const getProductsData = async () => {
+    // silent = background refresh (e.g. from a real-time event) — skips the
+    // loading flag so pages don't flash skeletons during a live update.
+    const getProductsData = async (silent = false) => {
         try {
-            setProductsLoading(true)
+            if (!silent) setProductsLoading(true)
             const response = await axios.get(backendUrl + '/api/product/list')
             if(response.data.success){
                 // Only update if the backend actually has products to show
@@ -132,7 +137,7 @@ const ShopContextProvider = (props) => {
             toast.error(error.message)
         }
         finally {
-            setProductsLoading(false)
+            if (!silent) setProductsLoading(false)
         }
     }
 
@@ -157,6 +162,17 @@ const ShopContextProvider = (props) => {
         getProductsData()
     }, [token])
 
+    // Real-time updates: one shared socket for the whole storefront. Catalog
+    // changes silently re-fetch products here; other pages subscribe to the
+    // exposed `socket` for their own events (e.g. orders). No refresh needed.
+    useEffect(()=>{
+        if(!backendUrl) return;
+        const s = io(backendUrl, { transports: ['websocket', 'polling'] })
+        s.on('products:updated', () => getProductsData(true))
+        setSocket(s)
+        return () => { s.disconnect(); setSocket(null) }
+    }, [backendUrl])
+
     useEffect(()=>{
         if(!token && localStorage.getItem('token')){
             setToken(localStorage.getItem('token'))
@@ -170,7 +186,7 @@ const ShopContextProvider = (props) => {
         cartItems, setCartItems, addToCart,
         getCartCount, updateQuantity, getCartAmount,
         navigate, backendUrl, token, setToken,
-        setProducts
+        setProducts, socket
     }
     return ( 
         <ShopContext.Provider value={value}> 

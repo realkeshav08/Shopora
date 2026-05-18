@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { backendUrl, currency } from '../App';
 import { toast } from 'react-toastify';
+import { socket } from '../socket';
 
 const Insights = ({ token }) => {
   const [trending, setTrending] = useState([]);
@@ -10,9 +11,9 @@ const Insights = ({ token }) => {
   const [loadingTrending, setLoadingTrending] = useState(false);
   const [loadingPairs, setLoadingPairs] = useState(false);
 
-  const fetchTrendingAnalytics = async () => {
+  const fetchTrendingAnalytics = async (silent = false) => {
     if (!token) return;
-    setLoadingTrending(true);
+    if (!silent) setLoadingTrending(true);
     try {
       const res = await axios.get(`${backendUrl}/api/recommendations/analytics/trending`, {
         headers: { token }
@@ -26,12 +27,12 @@ const Insights = ({ token }) => {
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to load trending data');
     }
-    setLoadingTrending(false);
+    if (!silent) setLoadingTrending(false);
   };
 
-  const fetchCoPurchaseAnalytics = async () => {
+  const fetchCoPurchaseAnalytics = async (silent = false) => {
     if (!token) return;
-    setLoadingPairs(true);
+    if (!silent) setLoadingPairs(true);
     try {
       const res = await axios.get(`${backendUrl}/api/recommendations/analytics/copurchase`, {
         headers: { token }
@@ -44,12 +45,22 @@ const Insights = ({ token }) => {
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to load co-purchase data');
     }
-    setLoadingPairs(false);
+    if (!silent) setLoadingPairs(false);
   };
 
   useEffect(() => {
     fetchTrendingAnalytics();
     fetchCoPurchaseAnalytics();
+  }, [token]);
+
+  // Real-time: insights are order-driven — refresh silently when orders change.
+  useEffect(() => {
+    const handler = () => {
+      fetchTrendingAnalytics(true);
+      fetchCoPurchaseAnalytics(true);
+    };
+    socket.on('orders:updated', handler);
+    return () => socket.off('orders:updated', handler);
   }, [token]);
 
   return (

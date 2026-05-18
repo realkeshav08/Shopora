@@ -2,6 +2,7 @@ import axios from 'axios'
 import React, { useState, useEffect } from 'react'
 import { backendUrl } from '../App'
 import { toast } from 'react-toastify'
+import { socket } from '../socket'
 
 // Date a user's account was created — derived from the MongoDB ObjectId.
 const joinedOn = (id) => {
@@ -36,6 +37,13 @@ const Users = ({ token }) => {
 
   useEffect(() => {
     fetchUsers()
+  }, [])
+
+  // Real-time: refresh when a new user registers (silent in-place update).
+  useEffect(() => {
+    const handler = () => fetchUsers()
+    socket.on('users:updated', handler)
+    return () => socket.off('users:updated', handler)
   }, [])
 
   const query = search.trim().toLowerCase()

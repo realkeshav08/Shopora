@@ -80,17 +80,26 @@ const Product = () => {
           <div className="flex flex-col gap-4 my-8">
             <p>Select Size</p>
             <div className="flex gap-2">
-              {productData.sizes.map((item, index) => (
-                <button
-                  onClick={() => setSize(item)}
-                  key={index}
-                  className={`bg-light py-2 px-4 border ${
-                    item === size ? 'border-primary' : ''
-                  }`}
-                >
-                  {item}
-                </button>
-              ))}
+              {productData.sizes.map((item, index) => {
+                const sizeOut = (productData.outOfStockSizes || []).includes(item);
+                return (
+                  <button
+                    onClick={() => { if (!sizeOut) setSize(item); }}
+                    disabled={sizeOut}
+                    key={index}
+                    title={sizeOut ? 'Out of stock' : ''}
+                    className={`py-2 px-4 border transition-colors ${
+                      sizeOut
+                        ? 'bg-gray-100 text-gray-400 line-through border-gray-200 cursor-not-allowed'
+                        : item === size
+                          ? 'bg-light border-primary'
+                          : 'bg-light border-transparent hover:border-primary/40'
+                    }`}
+                  >
+                    {item}
+                  </button>
+                );
+              })}
             </div>
           </div>
           <div className="flex items-center gap-5 mt-4">

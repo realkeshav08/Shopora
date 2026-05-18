@@ -3,6 +3,7 @@ import React from 'react'
 import { backendUrl, currency } from '../App'
 import { toast } from 'react-toastify'
 import { useState, useEffect } from 'react'
+import { socket } from '../socket'
 
 const List = () => {
   const [list, setList] = useState([])
@@ -36,6 +37,14 @@ const List = () => {
 
   useEffect(()=>{
     fetchList()
+  }, [])
+
+  // Real-time: refresh the list when any product changes (silent — fetchList
+  // doesn't re-trigger the spinner, so it updates smoothly in place).
+  useEffect(()=>{
+    const handler = () => fetchList()
+    socket.on('products:updated', handler)
+    return () => socket.off('products:updated', handler)
   }, [])
 
   const removeProduct = async (id) => {
@@ -134,6 +143,27 @@ const List = () => {
     }
   }
 
+  // Toggle a single size in/out of stock (applied instantly).
+  const toggleSizeStock = async (id, size, currentlyInStock) => {
+    try {
+      const token = localStorage.getItem('token')
+      const response = await axios.post(
+        backendUrl + '/api/product/size-status',
+        { id, size, inStock: !currentlyInStock },
+        { headers: { token } }
+      )
+      if (response.data.success) {
+        toast.success(response.data.message)
+        await fetchList()
+      } else {
+        toast.error(response.data.message)
+      }
+    } catch (error) {
+      console.error(error)
+      toast.error(error.response?.data?.message || error.message)
+    }
+  }
+
   // Search across name, category, sub-category and description — the same
   // fields the customer storefront search uses, so results stay consistent.
   const query = search.trim().toLowerCase()
@@ -217,6 +247,29 @@ const List = () => {
                       onChange={(e) => setEditDesc(e.target.value)}
                       className='mt-1 block w-full border border-gray-300 rounded px-2 py-1 outline-none focus:border-primary resize-y'
                     />
+                  </div>
+                  <div>
+                    <label className='text-xs font-bold text-gray-500 uppercase'>Stock by Size</label>
+                    <div className='flex flex-wrap gap-2 mt-1'>
+                      {(item.sizes || []).map((sz) => {
+                        const out = (item.outOfStockSizes || []).includes(sz)
+                        return (
+                          <button
+                            key={sz}
+                            onClick={() => toggleSizeStock(item._id, sz, !out)}
+                            title={out ? 'Click to mark in stock' : 'Click to mark out of stock'}
+                            className={`px-3 py-1.5 rounded text-xs font-bold border transition-colors ${
+                              out
+                                ? 'bg-red-100 text-red-700 border-red-200'
+                                : 'bg-green-100 text-green-700 border-green-200'
+                            }`}
+                          >
+                            {sz} · {out ? 'Out' : 'In'}
+                          </button>
+                        )
+                      })}
+                    </div>
+                    <p className='text-[11px] text-gray-400 mt-1'>Click a size to toggle its stock (applied instantly).</p>
                   </div>
                   <div className='flex gap-2'>
                     <button

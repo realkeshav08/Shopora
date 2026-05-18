@@ -3,6 +3,7 @@ import axios from 'axios';
 import { backendUrl, currency } from '../App';
 import { toast } from 'react-toastify';
 import { assets } from '../assets/assets';
+import { socket } from '../socket';
 
 const Orders = ({ token }) => {
   const [orders, setOrders] = useState([]);
@@ -49,6 +50,14 @@ const Orders = ({ token }) => {
 
   useEffect(() => {
     fetchAllOrders();
+  }, [token]);
+
+  // Real-time: refresh when a new order is placed or a status changes
+  // (silent in-place update — no spinner flash).
+  useEffect(() => {
+    const handler = () => fetchAllOrders();
+    socket.on('orders:updated', handler);
+    return () => socket.off('orders:updated', handler);
   }, [token]);
 
   return (

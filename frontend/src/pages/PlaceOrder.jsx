@@ -34,8 +34,33 @@ const PlaceOrder = () => {
     try {
       let orderItems = [];
 
+      // Guests must log in to place an order. The cart is saved in
+      // localStorage, so it survives the trip to the login page and back.
+      if (!token) {
+        toast.info("Please log in to complete your order.");
+        navigate('/login');
+        return;
+      }
+
       if (!cartItems || getCartAmount() === 0) {
         toast.error("Your cart is empty. Please add items before placing an order.");
+        return;
+      }
+
+      // Block checkout if any cart item — at its chosen size — is out of stock.
+      let hasOutOfStock = false;
+      for (const id of Object.keys(cartItems)) {
+        const p = products.find((pr) => pr._id === id);
+        for (const size of Object.keys(cartItems[id] || {})) {
+          if (cartItems[id][size] > 0 && p &&
+              (p.available === false || (p.outOfStockSizes || []).includes(size))) {
+            hasOutOfStock = true;
+          }
+        }
+      }
+      if (hasOutOfStock) {
+        toast.error("Some items in your cart are out of stock. Please remove them to continue.");
+        navigate('/cart');
         return;
       }
       Object.keys(cartItems).forEach((itemId) => {

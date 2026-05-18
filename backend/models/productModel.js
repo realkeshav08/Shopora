@@ -10,6 +10,9 @@ const productSchema = new mongoose.Schema({
     sizes: { type: Array, required: true },
     bestseller : { type: Boolean},
     available: { type: Boolean, default: true },
+    // Sizes that are individually out of stock. A size is buyable when the
+    // product is available AND its size is not listed here.
+    outOfStockSizes: { type: [String], default: [] },
     date: { type: Number, required: true }
 })
 

@@ -55,6 +55,17 @@ const Cart = () => {
 
     fetchSuggestions();
   }, [cartItems, backendUrl]);
+
+  // A cart line is unavailable if the product is off OR its size is out of stock.
+  const isLineUnavailable = (productData, size) =>
+    productData.available === false || (productData.outOfStockSizes || []).includes(size);
+
+  // True if any item in the cart has been marked out of stock.
+  const hasUnavailable = cartData.some((item) => {
+    const p = products.find((pr) => pr._id === item._id);
+    return p && isLineUnavailable(p, item.size);
+  });
+
   return (
     <div className='border-t pt-14'>
       <div className='text-2xl mb-3'>
@@ -81,17 +92,24 @@ const Cart = () => {
           <>
             {cartData.map((item, index) => {
               const productData = products.find((product)=> product._id === item._id);
-              
+
               if (!productData) {
                 return null; // Skip if product not found in database
               }
 
+              const isUnavailable = isLineUnavailable(productData, item.size);
+
               return (
                 <div key={index} className='py-4 border-t border-b text-gray-700 grid grid-cols-[4fr_0.5fr_0.5fr] sm:grid-cols-[4fr_2fr_0.5fr] items-center gap-4'>
                   <div className='flex items-start gap-6'>
-                    <img src={productData.image[0]} className='w-16 sm:w-20' alt="" />
+                    <img src={productData.image[0]} className={`w-16 sm:w-20 ${isUnavailable ? 'grayscale opacity-60' : ''}`} alt="" />
                     <div>
                       <p className='text-xs sm:text-lg font-medium'>{productData.name}</p>
+                      {isUnavailable && (
+                        <span className='inline-block mt-1 text-[10px] font-bold bg-red-100 text-red-700 px-2 py-0.5 rounded'>
+                          OUT OF STOCK
+                        </span>
+                      )}
                       <div className='flex items-center gap-5 mt-2'>
                         <p>{currency}{productData.price}</p>
                         <p className='px-2 sm:px-3 sm:py-1 border bg-light'>{item.size}</p>
@@ -107,7 +125,18 @@ const Cart = () => {
               <div className='w-full sm:w-[450px]'>
                 <CartTotal/>
                 <div className='w-full text-end'>
-                  <button onClick={()=> navigate('/place-order')} className='bg-primary text-white text-sm my-8 px-8 py-3'>PROCEED TO CHECKOUT</button>
+                  {hasUnavailable && (
+                    <p className='text-sm text-red-600 mt-6'>
+                      Some items are out of stock. Please remove them to continue.
+                    </p>
+                  )}
+                  <button
+                    onClick={()=> navigate('/place-order')}
+                    disabled={hasUnavailable}
+                    className='bg-primary text-white text-sm my-8 px-8 py-3 disabled:opacity-50 disabled:cursor-not-allowed'
+                  >
+                    PROCEED TO CHECKOUT
+                  </button>
                 </div>
               </div>
             </div>

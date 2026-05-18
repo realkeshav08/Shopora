@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 
 
 const Orders = () => {
-  const {backendUrl, token, currency} = useContext(ShopContext);
+  const {backendUrl, token, currency, socket} = useContext(ShopContext);
 
   const [orders, setOrders] = useState([]);
 
@@ -29,6 +29,15 @@ const Orders = () => {
   useEffect(()=>{
     loadOrderData()
   }, [token])
+
+  // Real-time: refresh silently when this user's order status changes
+  // (e.g. an admin marks it Shipped) — no page refresh needed.
+  useEffect(()=>{
+    if(!socket) return;
+    const handler = () => loadOrderData();
+    socket.on('orders:updated', handler);
+    return () => socket.off('orders:updated', handler);
+  }, [socket, token])
 
   return (
     <div className='border-t pt-16'>

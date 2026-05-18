@@ -3,11 +3,21 @@ import { ShopContext } from '../context/ShopContext';
 import { Link } from 'react-router-dom';
 
 const ProductItem = ({ id, image, images, name, price, available }) => {
-  const { currency, cartItems, updateQuantity } = useContext(ShopContext);
+  const { currency, cartItems, updateQuantity, products } = useContext(ShopContext);
 
   // Resilience: handle both singular 'image' and plural 'images' from different data sources
   const imagesToUse = image || images || [];
   const productImage = Array.isArray(imagesToUse) && imagesToUse.length > 0 ? imagesToUse[0] : "placeholder.jpg";
+
+  // Look up the full product so we know its per-size stock. A product is
+  // "fully out of stock" only if it is disabled OR every size is out of stock;
+  // a product with some sizes available is still buyable (no badge).
+  const product = products?.find((p) => p._id === id);
+  const fullyOut = product
+    ? product.available === false ||
+      (Array.isArray(product.sizes) && product.sizes.length > 0 &&
+        product.sizes.every((s) => (product.outOfStockSizes || []).includes(s)))
+    : available === false;
 
   // Cart state for this product (cart is keyed by productId -> size -> quantity).
   const cartEntry = cartItems?.[id] || {};
@@ -29,15 +39,15 @@ const ProductItem = ({ id, image, images, name, price, available }) => {
   return (
     <Link className='group text-gray-800 cursor-pointer' to={id ? `/product/${id}` : '#'}>
       <div className='relative overflow-hidden rounded-2xl bg-white border border-primary/5 shadow-sm hover:shadow-xl hover:shadow-primary/5 transition-all duration-500'>
-        <img className={`w-full aspect-[4/5] object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out ${available === false ? 'grayscale opacity-60' : ''}`} src={productImage} alt={name || "Product"} />
+        <img className={`w-full aspect-[4/5] object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out ${fullyOut ? 'grayscale opacity-60' : ''}`} src={productImage} alt={name || "Product"} />
 
-        {available === false && (
+        {fullyOut && (
           <div className='absolute top-3 right-3 px-3 py-1 bg-red-500 text-white text-[10px] font-bold rounded-full shadow-lg z-10'>
             OUT OF STOCK
           </div>
         )}
 
-        {available === false ? (
+        {fullyOut ? (
           <div className='absolute bottom-3 left-3 right-3 translate-y-12 group-hover:translate-y-0 transition-transform duration-500'>
             <button className='w-full py-2 bg-white/90 backdrop-blur-md text-primary text-xs font-bold rounded-lg shadow-lg border border-primary/10'>
               NOT AVAILABLE

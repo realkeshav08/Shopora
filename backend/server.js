@@ -1,5 +1,7 @@
 import express from 'express'
 import cors from 'cors'
+import http from 'http'
+import { Server } from 'socket.io'
 import dotenv from 'dotenv'
 dotenv.config();
 import connectDB from './config/mongodb.js'
@@ -46,4 +48,12 @@ app.get('/', (req, res) => {
     res.send("API working")
 })
 
-app.listen(port, ()=> console.log('Server started on port: ' + port));
+// HTTP server + Socket.IO for real-time updates (e.g. catalog changes).
+// Controllers reach the io instance via req.app.get('io').
+const server = http.createServer(app)
+const io = new Server(server, {
+    cors: { origin: allowedOrigins || '*', methods: ['GET', 'POST'] },
+})
+app.set('io', io)
+
+server.listen(port, () => console.log('Server started on port: ' + port));

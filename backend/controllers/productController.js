@@ -8,6 +8,12 @@ cloudinary.config({
   });
   
 
+// Broadcast a "catalog changed" event so connected storefronts refresh
+// their product list in real time (no page reload needed).
+const notifyProductsChanged = (req) => {
+    req.app.get('io')?.emit('products:updated');
+}
+
 // function for add product
 const addProduct = async (req, res) => {
     try {
@@ -51,6 +57,7 @@ const addProduct = async (req, res) => {
         // ✅ Save product in DB
         const product = new productModel(productData);
         await product.save();
+        notifyProductsChanged(req);
         res.json({ success: true, message: "Product Added" });
 
     } 
@@ -76,6 +83,7 @@ const listProducts = async (req, res) => {
 const removeProduct = async (req, res) => {
     try {
         await productModel.findByIdAndDelete(req.body.id)
+        notifyProductsChanged(req)
         res.json({ success: true, message: "Product removed"})
     }
     catch (error) {
@@ -124,6 +132,7 @@ const editProduct = async (req, res) => {
         if (!updated) {
             return res.json({ success: false, message: "Product not found" });
         }
+        notifyProductsChanged(req);
         res.json({ success: true, message: "Product updated" });
     }
     catch (error) {
@@ -137,6 +146,7 @@ const updateStatus = async (req, res) => {
     try {
         const { id, available } = req.body;
         await productModel.findByIdAndUpdate(id, { available });
+        notifyProductsChanged(req);
         res.json({ success: true, message: "Status Updated" });
     }
     catch (error) {
@@ -145,4 +155,29 @@ const updateStatus = async (req, res) => {
     }
 }
 
-export { listProducts, addProduct, removeProduct, singleProduct, updateStatus, editProduct }
+// function to mark an individual size in or out of stock
+const updateSizeStock = async (req, res) => {
+    try {
+        const { id, size, inStock } = req.body;
+        const product = await productModel.findById(id);
+        if (!product) {
+            return res.json({ success: false, message: "Product not found" });
+        }
+        const set = new Set(product.outOfStockSizes || []);
+        if (inStock) {
+            set.delete(size);
+        } else {
+            set.add(size);
+        }
+        product.outOfStockSizes = [...set];
+        await product.save();
+        notifyProductsChanged(req);
+        res.json({ success: true, message: `Size ${size} is now ${inStock ? 'in stock' : 'out of stock'}` });
+    }
+    catch (error) {
+        console.log(error);
+        res.json({ success: false, message: "Something went wrong. Please try again later." });
+    }
+}
+
+export { listProducts, addProduct, removeProduct, singleProduct, updateStatus, editProduct, updateSizeStock }

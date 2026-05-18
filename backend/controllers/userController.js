@@ -56,6 +56,8 @@ const registerUser = async (req, res) => {
             password: hashedPassword
         });
         const user = await newUser.save();
+        // Notify the admin panel that the user list changed (real-time).
+        req.app.get('io')?.emit('users:updated');
         const token = createToken(user._id)
         res.json({ success: true, token });
 

@@ -2,6 +2,11 @@
 
 Shopora is a full-stack e-commerce application built with the MERN stack (MongoDB, Express, React, Node.js), plus a dedicated **Python recommendation microservice**. It features a sleek customer storefront, a robust admin dashboard, and a secure backend API.
 
+## 🔗 Live
+
+- **Storefront:** https://shopora.keshavkashyap.me
+- **Admin Panel:** https://shopora.admin.keshavkashyap.me
+
 ## 🚀 Features
 
 - **Customer Storefront** — browse products, multi-field search, category/type filters, persistent cart, profile management, change password.

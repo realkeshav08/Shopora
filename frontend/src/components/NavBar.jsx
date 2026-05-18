@@ -69,7 +69,7 @@ const NavBar = () => {
         </Link>
         <img onClick={()=>setVisible(true)} src={assets.menu_icon} className='w-5 cursor-pointer sm:hidden' alt="" />
       </div>
-      <div className={`absolute top-0 right-0 bottom-0 overflow-hidden bg-white transition-all ${visible ? 'w-full' : 'w-0'}`}>
+      <div className={`fixed top-0 right-0 bottom-0 z-[60] overflow-hidden bg-white transition-all duration-300 ${visible ? 'w-full' : 'w-0'}`}>
         <div className="flex flex-col text-gray-600">
             <div onClick={() => setVisible(false)} className="flex items-center gap-4 p-3">
             <img src={assets.dropdown_icon} className="h-4 rotate-180" alt="" />

@@ -26,8 +26,11 @@ const Hero = () => {
                 </div> 
             </div> 
             {/* Hero Right Side */}
-            <div className='w-full sm:w-1/2 relative group'>
-                <img className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-700' src={assets.hero_img} alt="Featured Arrival" />
+            {/* aspect-square reserves the image slot on mobile so the layout
+                doesn't jump while the image loads; sm:aspect-auto lets it fill
+                the flex row on desktop. bg-light is the placeholder colour. */}
+            <div className='w-full sm:w-1/2 relative group aspect-square sm:aspect-auto bg-light overflow-hidden'>
+                <img className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-700' src={assets.hero_img} alt="Featured Arrival" fetchpriority="high" decoding="async" />
                 <div className='absolute inset-0 bg-gradient-to-t from-primary/10 to-transparent pointer-events-none'></div>
             </div>
         </div> 

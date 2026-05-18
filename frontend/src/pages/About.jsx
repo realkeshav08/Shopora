@@ -11,7 +11,7 @@ const About = () => {
       </div>
       <div className='my-10 flex flex-col md:flex-row gap-16 items-center'>
         <div className='w-full md:w-1/2 relative group'>
-            <img className='w-full rounded-3xl shadow-lg group-hover:scale-[1.02] transition-transform duration-500' src={assets.about_img} alt="About Shopora" />
+            <img className='w-full aspect-square object-cover bg-light rounded-3xl shadow-lg group-hover:scale-[1.02] transition-transform duration-500' src={assets.about_img} alt="About Shopora" decoding="async" />
             <div className='absolute -bottom-6 -right-6 w-32 h-32 bg-primary/10 rounded-full blur-3xl -z-10'></div>
         </div>
         <div className='flex flex-col justify-center gap-6 md:w-1/2 text-gray-600 leading-relaxed'>

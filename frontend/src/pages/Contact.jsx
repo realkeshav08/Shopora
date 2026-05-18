@@ -11,7 +11,7 @@ const Contact = () => {
       </div>
       <div className='my-16 flex flex-col md:flex-row gap-16 items-center justify-center mb-32'>
         <div className='w-full md:w-1/2 relative group'>
-            <img className='w-full rounded-3xl shadow-lg group-hover:scale-[1.02] transition-transform duration-500' src={assets.contact_img} alt="Contact Shopora" />
+            <img className='w-full aspect-square object-cover bg-light rounded-3xl shadow-lg group-hover:scale-[1.02] transition-transform duration-500' src={assets.contact_img} alt="Contact Shopora" decoding="async" />
             <div className='absolute -top-6 -left-6 w-32 h-32 bg-primary/10 rounded-full blur-3xl -z-10'></div>
         </div>
         <div className='flex flex-col justify-center items-start gap-8 md:w-1/2'>

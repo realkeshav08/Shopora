@@ -4,7 +4,7 @@ import validator from 'validator';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { v2 as cloudinary } from 'cloudinary';
-import { transporter, mailFrom, mailReplyTo } from '../config/mailer.js';
+import { sendMail } from '../config/mailer.js';
 
 const createToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '7d' })
@@ -151,15 +151,11 @@ const forgotPassword = async (req, res) => {
         user.resetOTPExpire = Date.now() + 15 * 60 * 1000; // 15 mins
         await user.save();
 
-        const mailOptions = {
-            from: mailFrom,
-            replyTo: mailReplyTo,
+        await sendMail({
             to: email,
             subject: 'Password Reset OTP - Shopora',
             text: `Your OTP for resetting password is: ${otp}. It is valid for 15 minutes.`
-        };
-
-        await transporter.sendMail(mailOptions);
+        });
         res.json({ success: true, message: "OTP sent to your email" });
 
     } catch (error) {

@@ -10,11 +10,13 @@ Shopora is a full-stack e-commerce application built with the MERN stack (MongoD
 ## 🚀 Features
 
 - **Customer Storefront** — browse products, multi-field search, category/type filters, persistent cart, profile management, change password.
-- **Admin Dashboard** — manage inventory, edit product price/description, track orders, browse registered users, view recommendation analytics.
+- **Admin Dashboard** — manage inventory, edit product price/description, toggle per-size stock, track orders, browse registered users, view recommendation analytics.
+- **Real-time Sync** — catalog, stock, order and user changes propagate live between the storefront and admin via Socket.IO — no page refresh.
+- **Per-size Stock** — each size of a product can be individually marked in/out of stock; the storefront and checkout enforce it.
 - **Smart Recommendation Engine** — personalized "For You" picks, trending products, similar items, and "frequently bought together" suggestions (content-based + collaborative filtering).
 - **Secure Authentication** — JWT auth (7-day expiry) for users and admins; bcrypt-hashed passwords.
 - **Payment** — Cash on Delivery (Stripe / Razorpay scaffolded).
-- **Cloud Media** — product images on Cloudinary.
+- **Cloud Media** — product images on Cloudinary; transactional email via Resend.
 - Prices shown in **INR (₹)**.
 
 ## 🎯 Recommendation System
@@ -50,6 +52,8 @@ GET   /api/recommendations/analytics/copurchase (admin)
 - **Frontend / Admin**: React, Vite, Tailwind CSS, React Router, React Toastify
 - **Backend**: Node.js, Express, Mongoose
 - **Recommendation Service**: Python, FastAPI, Uvicorn
+- **Real-time**: Socket.IO
+- **Email**: Resend (transactional email API)
 - **Database**: MongoDB
 
 ## 📂 Project Structure
@@ -106,8 +110,8 @@ CLOUDINARY_API_KEY=...
 CLOUDINARY_SECRET_KEY=...
 ADMIN_EMAIL=...
 ADMIN_PASSWORD=<strong password>
-EMAIL_PASS=<gmail app password>
-SENDER_EMAIL=<gmail address>
+RESEND_API_KEY=<resend api key — transactional email>
+SENDER_EMAIL=<reply-to email address>
 RECOMMENDATION_SERVICE_URL=http://localhost:8000
 ALLOWED_ORIGINS=http://localhost:5173,http://localhost:5174
 RECO_SERVICE_KEY=<shared secret with the recommendation service>

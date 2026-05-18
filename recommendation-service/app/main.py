@@ -42,12 +42,13 @@ def _engine() -> RecommendationEngine:
     return RecommendationEngine(get_products(), get_orders())
 
 
-@app.get("/")
+# GET + HEAD so uptime monitors (which often send HEAD) don't get a 405.
+@app.api_route("/", methods=["GET", "HEAD"])
 def root():
     return {"service": "Shopora Recommendation Service", "status": "running"}
 
 
-@app.get("/health")
+@app.api_route("/health", methods=["GET", "HEAD"])
 def health():
     try:
         ping()

@@ -6,9 +6,10 @@ import { assets } from '../assets/assets';
 
 const Orders = ({ token }) => {
   const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const fetchAllOrders = async () => {
-    if (!token) return;
+    if (!token) { setLoading(false); return; }
 
     try {
       const response = await axios.post(
@@ -23,6 +24,8 @@ const Orders = ({ token }) => {
       }
     } catch (error) {
       toast.error(error.response?.data?.message || 'Something went wrong');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -52,7 +55,14 @@ const Orders = ({ token }) => {
     <div>
       <h3>Order Page</h3>
       <div>
-        {orders.map((order, index) => (
+        {loading ? (
+          <div className="flex justify-center py-20">
+            <div className="h-8 w-8 rounded-full border-[3px] border-primary/20 border-t-primary animate-spin"></div>
+          </div>
+        ) : orders.length === 0 ? (
+          <div className="py-16 text-center text-gray-500 border">No orders yet.</div>
+        ) : (
+          orders.map((order, index) => (
           <div
             key={index}
             className="grid grid-cols-1 sm:grid-cols-[0.5fr_2fr_1fr] lg:grid-cols-[0.5fr_2fr_1fr_1fr_1fr] gap-3 items-start border-2 border-gray-300 p-5 md:p-8 my-3 md:my-4 text-xs sm:text-sm text-gray-700"
@@ -104,7 +114,8 @@ const Orders = ({ token }) => {
               <option value="Delivered">Delivered</option>
             </select>
           </div>
-        ))}
+          ))
+        )}
       </div>
     </div>
   );

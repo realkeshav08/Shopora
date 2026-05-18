@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react'
 
 const List = () => {
   const [list, setList] = useState([])
+  const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
 
   // Inline-edit state for price + description.
@@ -27,6 +28,9 @@ const List = () => {
     catch (error){
       console.error(error)
       toast.error(error.message)
+    }
+    finally {
+      setLoading(false)
     }
   }
 
@@ -177,7 +181,11 @@ const List = () => {
         </div>
 
         {/* Product List */}
-        {filteredList.length === 0 ? (
+        {loading ? (
+          <div className='flex justify-center py-20'>
+            <div className='h-8 w-8 rounded-full border-[3px] border-primary/20 border-t-primary animate-spin'></div>
+          </div>
+        ) : filteredList.length === 0 ? (
           <div className='py-16 text-center text-gray-500 border'>
             {query ? `No products match "${search}".` : 'No products found.'}
           </div>

@@ -15,6 +15,7 @@ const joinedOn = (id) => {
 
 const Users = ({ token }) => {
   const [users, setUsers] = useState([])
+  const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
 
   const fetchUsers = async () => {
@@ -28,6 +29,8 @@ const Users = ({ token }) => {
     } catch (error) {
       console.error(error)
       toast.error(error.response?.data?.message || error.message)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -77,7 +80,11 @@ const Users = ({ token }) => {
           <b className='text-center'>Role</b>
         </div>
 
-        {filtered.length === 0 ? (
+        {loading ? (
+          <div className='flex justify-center py-20'>
+            <div className='h-8 w-8 rounded-full border-[3px] border-primary/20 border-t-primary animate-spin'></div>
+          </div>
+        ) : filtered.length === 0 ? (
           <div className='py-16 text-center text-gray-500 border'>
             {query ? `No users match "${search}".` : 'No users found.'}
           </div>
